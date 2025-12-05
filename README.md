@@ -2,6 +2,25 @@
 
 Production-ready Stripe Connect (Express Accounts) integration for a live-stream ERP built with Bun, Hono, Prisma, React, Vite, Tailwind CSS, shadcn/ui, and Stripe Elements.
 
+## Quick Start with Docker 🐳
+
+```bash
+# Start the services (PostgreSQL + Backend Server)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+The server will be available at `http://localhost:3001`.
+
+📖 **See [DOCKER_SETUP.md](DOCKER_SETUP.md) for detailed Docker instructions.**
+
+---
+
 ## Features
 
 - Seller onboarding with Stripe Connect Express (account links + login links)
@@ -43,6 +62,13 @@ src/
 ```
 
 ## Prerequisites
+
+**With Docker (Recommended):**
+
+- Docker and Docker Compose
+- Stripe account (test mode keys)
+
+**Without Docker:**
 
 - Bun (latest)
 - Node.js 18+ (for tooling compatibility)

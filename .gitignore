@@ -120,4 +120,8 @@ stripe-debug.log
 *.zip
 *.tar.gz
 *.rar
+
+# Docker
+postgres_data/
+*.log
 *.7z

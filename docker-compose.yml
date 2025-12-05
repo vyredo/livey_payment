@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: livey_payment_db
+    environment:
+      POSTGRES_USER: livey
+      POSTGRES_PASSWORD: livey_password
+      POSTGRES_DB: livey_payment
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U livey" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend Server
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: livey_payment_server
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://livey:livey_password@postgres:5432/livey_payment
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - APP_URL=${APP_URL:-http://localhost:5173}
+      - PORT=3001
+      - NODE_ENV=${NODE_ENV:-production}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_FROM=${EMAIL_FROM}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./prisma:/app/prisma
+    command: sh -c "bunx prisma migrate deploy && bun run src/server/index.ts"
+
+volumes:
+  postgres_data:
