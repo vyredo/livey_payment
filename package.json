@@ -1,0 +1,48 @@
+{
+	"name": "livestream-erp-payments",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "bun --bun vite build",
+		"preview": "bun --bun vite preview",
+		"server:dev": "bun --watch src/server/index.ts",
+		"prisma:generate": "bunx prisma generate",
+		"prisma:migrate": "bunx prisma migrate dev --name init",
+		"prisma:studio": "bunx prisma studio"
+	},
+	"dependencies": {
+		"@hono/zod-validator": "^0.4.0",
+		"@prisma/client": "^5.20.0",
+		"@stripe/react-stripe-js": "^2.6.0",
+		"@stripe/stripe-js": "^3.4.0",
+		"@tanstack/react-query": "^5.60.0",
+		"class-variance-authority": "^0.7.0",
+		"clsx": "^2.1.1",
+		"hono": "^4.6.10",
+		"lucide-react": "^0.460.0",
+		"nodemailer": "^7.0.11",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"sonner": "^1.5.0",
+		"stripe": "^16.0.0",
+		"tailwind-merge": "^2.5.2",
+		"uuid": "^9.0.1",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@types/node": "^22.7.4",
+		"@types/nodemailer": "^7.0.4",
+		"@types/react": "^18.3.3",
+		"@types/react-dom": "^18.3.0",
+		"@types/uuid": "^9.0.8",
+		"@vitejs/plugin-react-swc": "^3.7.0",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.47",
+		"prisma": "^5.20.0",
+		"tailwindcss": "^3.4.15",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.10"
+	}
+}

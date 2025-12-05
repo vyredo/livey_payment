@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Seller {
+  id                        String    @id @default(uuid())
+  email                     String    @unique
+  businessName              String?
+
+  // Stripe Connect
+  stripeAccountId           String?   @unique @map("stripe_account_id")
+  stripeOnboardingCompleted Boolean   @default(false) @map("stripe_onboarding_completed")
+  stripeAccountStatus       String    @default("pending") @map("stripe_account_status") // pending, restricted, enabled
+
+  // Relationships
+  orders                    Order[]
+  transactions              Transaction[]
+
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  @@map("sellers")
+}
+
+model Order {
+  id                String    @id @default(uuid())
+  sellerId          String    @map("seller_id")
+
+  // Buyer information
+  buyerEmail        String    @map("buyer_email")
+  buyerName         String?   @map("buyer_name")
+  buyerPhone        String?   @map("buyer_phone")
+
+  // Financial (all amounts in cents)
+  subtotal          Int
+  taxAmount         Int       @default(0) @map("tax_amount")
+  shippingAmount    Int       @default(0) @map("shipping_amount")
+  totalAmount       Int       @map("total_amount")
+
+  // Status tracking
+  status            String    @default("pending") // pending, paid, processing, shipped, delivered, cancelled, refunded
+  paymentStatus     String    @default("unpaid") @map("payment_status") // unpaid, paid, refunded, partially_refunded
+  fulfillmentStatus String    @default("unfulfilled") @map("fulfillment_status") // unfulfilled, partial, fulfilled
+
+  // Relationships
+  seller            Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+  transactions      Transaction[]
+
+  // Metadata
+  notes             String?
+  metadata          String?
+
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String   @map("order_id")
+
+  // Product information
+  productId   String   @map("product_id")
+  productName String   @map("product_name")
+  productSku  String?  @map("product_sku")
+
+  // Pricing (in cents)
+  quantity    Int
+  unitPrice   Int      @map("unit_price")
+  totalPrice  Int      @map("total_price") // quantity * unitPrice
+
+  // Relationships
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Transaction {
+  id                    String   @id @default(uuid())
+  sellerId              String   @map("seller_id")
+  orderId               String?  @map("order_id")
+
+  // Stripe identifiers
+  stripePaymentIntentId String   @unique @map("stripe_payment_intent_id")
+
+  // Financial (in cents)
+  amountTotal           Int      @map("amount_total")
+  applicationFeeAmount  Int      @map("application_fee_amount")
+  sellerTransferAmount  Int      @map("seller_transfer_amount")
+  currency              String   @default("usd")
+
+  // Status
+  status                String   @default("pending") // pending, succeeded, failed, refunded
+
+  // Buyer info
+  buyerEmail            String?  @map("buyer_email")
+
+  // Relationships
+  seller                Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  order                 Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  // Metadata
+  metadata              String?
+
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@index([sellerId])
+  @@index([orderId])
+  @@index([status])
+  @@map("transactions")
+}
