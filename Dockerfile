@@ -14,8 +14,7 @@ FROM base AS deps
 COPY package.json bun.lock ./
 
 # Use cache mount to speed up installs
-RUN --mount=type=cache,target=/root/.bun/install/cache \
-  bun install --frozen-lockfile
+RUN bun install
 
 # Build stage
 FROM base AS builder
@@ -23,7 +22,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma Client
-RUN bunx prisma generate
+RUN bun prisma generate
 
 # Production stage
 FROM base AS runner
