@@ -6,7 +6,7 @@ import { paymentsRoute } from "./routes/payments";
 import { sellersRoute } from "./routes/sellers";
 import { webhooksRoute } from "./routes/webhooks";
 
-const app = new Hono().basePath("/api");
+const app = new Hono();
 
 // CORS configuration
 const allowedOrigins = [
