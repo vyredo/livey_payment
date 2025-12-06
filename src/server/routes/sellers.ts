@@ -60,10 +60,10 @@ sellersRoute.get("/by-email/:email", async (c: Context) => {
 // GET /api/sellers/:id - Get seller by ID
 sellersRoute.get("/:id", async (c: Context) => {
 	try {
-		const email = decodeURIComponent(c.req.param("email"));
+		const id = c.req.param("id");
 
 		const seller = await prisma.seller.findUnique({
-			where: { email },
+			where: { id },
 		});
 
 		if (!seller) {
@@ -72,7 +72,7 @@ sellersRoute.get("/:id", async (c: Context) => {
 
 		return c.json(seller);
 	} catch (error) {
-		console.error("Get seller by email error:", error);
+		console.error("Get seller error:", error);
 		return c.json({ error: "Failed to fetch seller" }, 500);
 	}
 });
