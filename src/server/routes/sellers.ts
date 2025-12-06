@@ -37,13 +37,13 @@ sellersRoute.post("/", zValidator("json", createSellerSchema), async (c) => {
 	}
 });
 
-// GET /api/sellers/:id - Get seller by ID
-sellersRoute.get("/:id", async (c: Context) => {
+// GET /api/sellers/by-email/:email - Get seller by email (must be before /:id)
+sellersRoute.get("/by-email/:email", async (c: Context) => {
 	try {
-		const id = c.req.param("id");
+		const email = decodeURIComponent(c.req.param("email"));
 
 		const seller = await prisma.seller.findUnique({
-			where: { id },
+			where: { email },
 		});
 
 		if (!seller) {
@@ -52,13 +52,13 @@ sellersRoute.get("/:id", async (c: Context) => {
 
 		return c.json(seller);
 	} catch (error) {
-		console.error("Get seller error:", error);
+		console.error("Get seller by email error:", error);
 		return c.json({ error: "Failed to fetch seller" }, 500);
 	}
 });
 
-// GET /api/sellers/by-email/:email - Get seller by email
-sellersRoute.get("/by-email/:email", async (c: Context) => {
+// GET /api/sellers/:id - Get seller by ID
+sellersRoute.get("/:id", async (c: Context) => {
 	try {
 		const email = decodeURIComponent(c.req.param("email"));
 
