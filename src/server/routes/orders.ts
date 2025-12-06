@@ -20,19 +20,18 @@ ordersRoute.post("/", zValidator("json", createOrderSchema), async (c) => {
 			process.env.EMAIL_FRONTEND_URL || "http://localhost:5173";
 		const paymentLink = `${frontendUrl}/checkout/${encodeURIComponent(order.id)}`;
 
-		// Send payment link email to buyer
-		try {
-			await emailService.sendPaymentLink({
+		// Send payment link email to buyer (non-blocking)
+		emailService
+			.sendPaymentLink({
 				to: order.buyerEmail,
 				buyerName: order.buyerName || undefined,
 				orderId: order.id,
 				totalAmount: order.totalAmount,
 				paymentLink,
+			})
+			.catch((emailError) => {
+				console.error("Failed to send payment link email:", emailError);
 			});
-		} catch (emailError) {
-			console.error("Failed to send payment link email:", emailError);
-			// Don't fail the order creation if email fails
-		}
 
 		return c.json(
 			{
