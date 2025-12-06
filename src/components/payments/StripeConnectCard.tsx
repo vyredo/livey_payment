@@ -12,6 +12,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { config } from "@/lib/config";
 
 type SellerStripeStatus = "pending" | "restricted" | "enabled" | string;
 
@@ -57,7 +58,7 @@ export const StripeConnectCard: React.FC<StripeConnectCardProps> = ({
 
 	const onboardMutation = useMutation<OnboardResponse, Error>({
 		mutationFn: async () => {
-			const res = await fetch("/api/payments/onboard", {
+			const res = await fetch(`${config.apiUrl}/payments/onboard`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -89,7 +90,7 @@ export const StripeConnectCard: React.FC<StripeConnectCardProps> = ({
 
 	const portalMutation = useMutation<PortalResponse, Error>({
 		mutationFn: async () => {
-			const res = await fetch("/api/payments/portal", {
+			const res = await fetch(`${config.apiUrl}/payments/portal`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

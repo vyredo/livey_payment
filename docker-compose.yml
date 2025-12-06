@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -27,6 +25,10 @@ services:
       - "3001:3001"
     environment:
       - DATABASE_URL=postgresql://livey:livey_password@postgres:5432/livey_payment
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=livey
+      - POSTGRES_PASSWORD=livey_password
+      - POSTGRES_DB=livey_payment
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
@@ -43,7 +45,8 @@ services:
         condition: service_healthy
     volumes:
       - ./prisma:/app/prisma
-    command: sh -c "bunx prisma migrate deploy && bun run src/server/index.ts"
+      - ./scripts:/app/scripts
+    command: sh -c "chmod +x /app/scripts/init-db.sh && /app/scripts/init-db.sh && bun run src/server/index.ts"
 
 volumes:
   postgres_data:

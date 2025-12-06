@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { config } from "@/lib/config";
 
 interface Seller {
 	id: string;
@@ -39,7 +40,7 @@ export const SellerOnboardingPage: React.FC = () => {
 				setError(null);
 
 				try {
-					const response = await fetch(`/api/sellers/${sellerId}`);
+					const response = await fetch(`${config.apiUrl}/sellers/${sellerId}`);
 
 					if (!response.ok) {
 						throw new Error("Seller not found");
@@ -73,7 +74,7 @@ export const SellerOnboardingPage: React.FC = () => {
 
 		try {
 			const response = await fetch(
-				`/api/sellers/by-email/${encodeURIComponent(email)}`,
+				`${config.apiUrl}/sellers/by-email/${encodeURIComponent(email)}`,
 			);
 
 			if (!response.ok) {
@@ -181,7 +182,7 @@ export const SellerOnboardingPage: React.FC = () => {
 					<StripeConnectCard
 						seller={seller}
 						refreshUrl={`${window.location.origin}/seller-onboarding?sellerId=${seller.id}`}
-						returnUrl={`${window.location.origin}/api/payments/callback?sellerId=${seller.id}`}
+						returnUrl={`${config.apiUrl}/payments/callback?sellerId=${seller.id}`}
 					/>
 
 					<Button variant="outline" onClick={resetForm} className="w-full">

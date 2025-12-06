@@ -8,9 +8,16 @@
 		"build": "bun --bun vite build",
 		"preview": "bun --bun vite preview",
 		"server:dev": "bun --watch src/server/index.ts",
-		"prisma:generate": "bunx prisma generate",
-		"prisma:migrate": "bunx prisma migrate dev --name init",
-		"prisma:studio": "bunx prisma studio"
+		"db:generate": "bunx prisma generate",
+		"db:migrate": "bunx prisma migrate dev",
+		"db:migrate:deploy": "bunx prisma migrate deploy",
+		"db:studio": "bunx prisma studio",
+		"db:push": "bunx prisma db push",
+		"db:seed": "bun run prisma/seed.ts",
+		"docker:up": "docker-compose up -d",
+		"docker:down": "docker-compose down",
+		"docker:logs": "docker-compose logs -f",
+		"docker:rebuild": "docker-compose down && docker-compose up -d --build"
 	},
 	"dependencies": {
 		"@hono/zod-validator": "^0.4.0",

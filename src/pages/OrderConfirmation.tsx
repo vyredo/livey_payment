@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { config } from "@/lib/config";
 
 type OrderItem = {
 	id: string;
@@ -52,7 +53,9 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
 	const query = useQuery<GetOrderResponse, Error>({
 		queryKey: ["order", orderId],
 		queryFn: async () => {
-			const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}`);
+			const res = await fetch(
+				`${config.apiUrl}/orders/${encodeURIComponent(orderId)}`,
+			);
 
 			if (!res.ok) {
 				const body = await res.json().catch(() => ({}));

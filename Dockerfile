@@ -2,6 +2,11 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
 
+# Install OpenSSL and PostgreSQL client for Prisma
+RUN apt-get update -y && \
+  apt-get install -y openssl postgresql-client && \
+  rm -rf /var/lib/apt/lists/*
+
 # Install dependencies
 FROM base AS deps
 COPY package.json bun.lock ./
@@ -9,6 +14,12 @@ RUN bun install --frozen-lockfile
 
 # Build stage
 FROM base AS builder
+
+# Install OpenSSL again in builder stage
+RUN apt-get update -y && \
+  apt-get install -y openssl && \
+  rm -rf /var/lib/apt/lists/*
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -25,6 +36,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/package.json ./package.json
 
 # Expose port

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { config } from "@/lib/config";
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as
 	| string
@@ -78,7 +79,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ orderId }) => {
 	const orderQuery = useQuery<GetOrderResponse, Error>({
 		queryKey: ["order", orderId],
 		queryFn: async () => {
-			const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}`);
+			const res = await fetch(
+				`${config.apiUrl}/orders/${encodeURIComponent(orderId)}`,
+			);
 
 			if (!res.ok) {
 				const body = await res.json().catch(() => ({}));
@@ -96,7 +99,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ orderId }) => {
 		enabled:
 			!!order && order.paymentStatus !== "paid" && Boolean(stripePromise),
 		queryFn: async () => {
-			const res = await fetch("/api/payments/create-intent", {
+			const res = await fetch(`${config.apiUrl}/payments/create-intent`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ orderId }),

@@ -101,27 +101,73 @@ cp .env.example .env
 - `VITE_STRIPE_PUBLISHABLE_KEY`
 - `APP_URL`
 
-## Database (Prisma + PostgreSQL)
+## Database Setup (Prisma + PostgreSQL)
+
+### Quick Setup (Local Development)
+
+Run the automated setup script:
+
+```bash
+chmod +x scripts/setup-local-db.sh
+./scripts/setup-local-db.sh
+```
+
+This script will:
+1. Generate Prisma Client
+2. Run database migrations
+3. Optionally seed the database with demo data
+
+### Manual Setup
 
 Generate the Prisma client:
 
 ```bash
-bun run prisma:generate
+bun run db:generate
 ```
 
-Run the initial migration:
+Run database migrations:
 
 ```bash
-bun run prisma:migrate
+bun run db:migrate
 ```
 
-(This runs `prisma migrate dev --name init` against the `DATABASE_URL`.)
+Deploy migrations (production):
+
+```bash
+bun run db:migrate:deploy
+```
+
+Seed the database (optional):
+
+```bash
+bun run db:seed
+```
 
 To inspect data with Prisma Studio:
 
 ```bash
-bun run prisma:studio
+bun run db:studio
 ```
+
+### Docker Database Setup
+
+When using Docker Compose, the database is automatically created and migrated on container startup via the [`scripts/init-db.sh`](scripts/init-db.sh:1) script.
+
+### Available Database Scripts
+
+- `bun run db:generate` - Generate Prisma Client
+- `bun run db:migrate` - Run migrations in development
+- `bun run db:migrate:deploy` - Deploy migrations in production
+- `bun run db:push` - Push schema changes without migrations
+- `bun run db:studio` - Open Prisma Studio
+- `bun run db:seed` - Seed database with demo data
+
+### Docker Scripts
+
+- `bun run docker:up` - Start Docker services
+- `bun run docker:down` - Stop Docker services
+- `bun run docker:logs` - View Docker logs
+- `bun run docker:rebuild` - Rebuild and restart containers
 
 ## Running the backend (Hono on Bun)
 

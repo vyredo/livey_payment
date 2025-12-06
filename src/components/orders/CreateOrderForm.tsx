@@ -23,6 +23,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { config } from "@/lib/config";
 
 type CreateOrderRequestItem = {
 	productId: string;
@@ -116,7 +117,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({
 		CreateOrderRequest
 	>({
 		mutationFn: async (payload: CreateOrderRequest) => {
-			const res = await fetch("/api/orders", {
+			const res = await fetch(`${config.apiUrl}/orders`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
