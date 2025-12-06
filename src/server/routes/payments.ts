@@ -114,6 +114,41 @@ paymentsRoute.post(
 				return c.json({ error: "Seller payment setup incomplete" }, 400);
 			}
 
+			// Check if a pending transaction already exists for this order
+			const existingTransaction = await prisma.transaction.findFirst({
+				where: {
+					orderId: order.id,
+					status: "pending",
+				},
+			});
+
+			// If a pending transaction exists, try to retrieve the existing PaymentIntent
+			if (existingTransaction) {
+				try {
+					const existingIntent = await stripeService.retrievePaymentIntent(
+						existingTransaction.stripePaymentIntentId,
+					);
+
+					// If the existing PaymentIntent is still usable, return it
+					if (
+						existingIntent &&
+						existingIntent.status !== "canceled" &&
+						existingIntent.status !== "succeeded"
+					) {
+						return c.json({
+							success: true,
+							clientSecret: existingIntent.client_secret,
+							paymentIntentId: existingIntent.id,
+						});
+					}
+				} catch {
+					// If we can't retrieve the existing intent, we'll create a new one
+					console.warn(
+						"Could not retrieve existing PaymentIntent, creating new one",
+					);
+				}
+			}
+
 			// Platform fee: 2% + $0.30
 			const applicationFeeAmount = Math.round(order.totalAmount * 0.02 + 30);
 
@@ -128,8 +163,16 @@ paymentsRoute.post(
 				},
 			});
 
-			await prisma.transaction.create({
-				data: {
+			// Use upsert to handle race conditions
+			await prisma.transaction.upsert({
+				where: {
+					stripePaymentIntentId: paymentIntent.id,
+				},
+				update: {
+					status: "pending",
+					updatedAt: new Date(),
+				},
+				create: {
 					sellerId: seller.id,
 					orderId: order.id,
 					stripePaymentIntentId: paymentIntent.id,

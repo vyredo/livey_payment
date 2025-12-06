@@ -15,8 +15,12 @@ ordersRoute.post("/", zValidator("json", createOrderSchema), async (c) => {
 		const order = await orderService.createOrder(data);
 
 		// Build the payment link
-		const appUrl = process.env.APP_URL || "http://localhost:3001";
-		const paymentLink = `${appUrl}/checkout/${encodeURIComponent(order.id)}`;
+		// EMAIL_FRONTEND_URL should be the public frontend URL where users access the checkout
+		const frontendUrl =
+			process.env.EMAIL_FRONTEND_URL ||
+			process.env.APP_URL ||
+			"http://localhost:5173";
+		const paymentLink = `${frontendUrl}/checkout/${encodeURIComponent(order.id)}`;
 
 		// Send payment link email to buyer
 		try {

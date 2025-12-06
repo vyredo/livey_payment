@@ -81,6 +81,12 @@ export class StripeService {
 		return paymentIntent;
 	}
 
+	async retrievePaymentIntent(
+		paymentIntentId: string,
+	): Promise<Stripe.PaymentIntent> {
+		return this.stripe.paymentIntents.retrieve(paymentIntentId);
+	}
+
 	async createLoginLink(accountId: string): Promise<string> {
 		const loginLink = await this.stripe.accounts.createLoginLink(accountId);
 

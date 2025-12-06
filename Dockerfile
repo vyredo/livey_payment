@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Use Bun base image
 FROM oven/bun:1 AS base
 WORKDIR /app
@@ -7,19 +9,16 @@ RUN apt-get update -y && \
   apt-get install -y openssl postgresql-client && \
   rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install dependencies with cache
 FROM base AS deps
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+
+# Use cache mount to speed up installs
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+  bun install --frozen-lockfile
 
 # Build stage
 FROM base AS builder
-
-# Install OpenSSL again in builder stage
-RUN apt-get update -y && \
-  apt-get install -y openssl && \
-  rm -rf /var/lib/apt/lists/*
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
