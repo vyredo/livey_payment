@@ -61,7 +61,7 @@ export const SellerOnboardingPage: React.FC = () => {
 		}
 	}, []);
 
-	const fetchSellerByEmail = async (e: React.FormEvent) => {
+	const findOrCreateSeller = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!email.trim()) {
@@ -73,18 +73,34 @@ export const SellerOnboardingPage: React.FC = () => {
 		setError(null);
 
 		try {
-			const response = await fetch(
+			// First try to find existing seller
+			let response = await fetch(
 				`${config.apiUrl}/sellers/by-email/${encodeURIComponent(email)}`,
 			);
 
+			if (response.ok) {
+				const data = await response.json();
+				setSeller(data);
+				return;
+			}
+
+			// If seller not found, create a new one
+			response = await fetch(`${config.apiUrl}/sellers`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email }),
+			});
+
 			if (!response.ok) {
-				throw new Error("Seller not found with this email");
+				throw new Error("Failed to create seller account");
 			}
 
 			const data = await response.json();
 			setSeller(data);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to fetch seller");
+			setError(
+				err instanceof Error ? err.message : "Failed to process request",
+			);
 			setSeller(null);
 		} finally {
 			setLoading(false);
@@ -109,13 +125,14 @@ export const SellerOnboardingPage: React.FC = () => {
 			{!seller ? (
 				<Card>
 					<CardHeader>
-						<CardTitle>Find Your Seller Account</CardTitle>
+						<CardTitle>Start Selling</CardTitle>
 						<CardDescription>
-							Enter your email address to access your seller dashboard
+							Enter your email address to access your seller dashboard or create
+							a new account
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<form onSubmit={fetchSellerByEmail} className="space-y-4">
+						<form onSubmit={findOrCreateSeller} className="space-y-4">
 							<div className="space-y-2">
 								<Label htmlFor="email">Email Address</Label>
 								<Input
